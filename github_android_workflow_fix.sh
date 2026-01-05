@@ -1,3 +1,23 @@
+#!/bin/bash
+# Filename: github_android_workflow_fix.sh
+# Purpose: Replace old workflow with Java 17 + Gradle 8.4 workflow and push to GitHub
+
+# -----------------------------
+# 1️⃣ Set variables
+# -----------------------------
+REPO_DIR="$HOME/NorTallybookBd"
+WORKFLOW_DIR="$REPO_DIR/.github/workflows"
+WORKFLOW_FILE="$WORKFLOW_DIR/android_build.yml"
+
+# -----------------------------
+# 2️⃣ Ensure workflow folder exists
+# -----------------------------
+mkdir -p "$WORKFLOW_DIR"
+
+# -----------------------------
+# 3️⃣ Replace workflow file
+# -----------------------------
+cat > "$WORKFLOW_FILE" << 'EOF'
 name: Android APK Build
 
 on:
@@ -47,3 +67,20 @@ jobs:
         with:
           name: app-debug.apk
           path: app/build/outputs/apk/debug/app-debug.apk
+EOF
+
+# -----------------------------
+# 4️⃣ Commit & push changes
+# -----------------------------
+cd "$REPO_DIR" || { echo "Repo not found"; exit 1; }
+
+# Stage all changes
+git add -A
+
+# Commit
+git commit -m "Replace old workflow with Java 17 + Gradle 8.4 workflow"
+
+# Force push to master
+git push origin master --force
+
+echo "✅ Workflow replaced and pushed to GitHub. Check Actions tab for APK build."
