@@ -3,40 +3,39 @@ name: Android APK Build
 on:
   push:
     branches:
-      - master
+      - master   # default branch
   pull_request:
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout project
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 11
+      # 2️⃣ Set up JDK 11
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '11'
+          distribution: temurin
+          java-version: 11
 
-      - name: Install Android SDK
+      # 3️⃣ Set up Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+
+      # 4️⃣ Upgrade Gradle wrapper to 7.6 (override old one if needed)
+      - name: Upgrade Gradle wrapper
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          mkdir -p $HOME/Android/cmdline-tools
-          unzip cmdline-tools.zip -d $HOME/Android/cmdline-tools
-          yes | $HOME/Android/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/Android "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          ./gradlew wrapper --gradle-version 7.6
 
-      - name: Add SDK to PATH
-        run: |
-          echo "$HOME/Android/platform-tools" >> $GITHUB_PATH
-          echo "$HOME/Android/cmdline-tools/cmdline-tools/bin" >> $GITHUB_PATH
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
+      # 5️⃣ Cache Gradle
       - name: Cache Gradle
         uses: actions/cache@v3
         with:
@@ -46,9 +45,11 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - name: Build APK (Debug with full logging)
-        run: ./gradlew assembleDebug --stacktrace --info --debug
+      # 6️⃣ Build APK
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
+      # 7️⃣ Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
