@@ -2,34 +2,36 @@ name: Android APK Build
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   pull_request:
 
 jobs:
   build:
-    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Java 11
-        uses: actions/setup-java@v3
+      # ✅ Java 8 (Gradle 4.4.1 compatible)
+      - name: Set up Java 8
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 11
+          java-version: 8
 
+      # ✅ Android SDK (no invalid inputs)
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
 
-      - name: Grant execute permission
+      - name: Grant Gradle permission
         run: chmod +x gradlew
 
+      # ✅ Build
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
+      # ✅ Upload artifact (v4)
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
