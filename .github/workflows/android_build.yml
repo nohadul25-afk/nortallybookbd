@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
@@ -21,11 +20,19 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 34
-          build-tools: 34.0.0
+      - name: Install Android SDK
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          mkdir -p $HOME/Android/cmdline-tools
+          unzip cmdline-tools.zip -d $HOME/Android/cmdline-tools
+          yes | $HOME/Android/cmdline-tools/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/Android "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Add SDK to PATH
+        run: |
+          echo "$HOME/Android/platform-tools" >> $GITHUB_PATH
+          echo "$HOME/Android/cmdline-tools/cmdline-tools/bin" >> $GITHUB_PATH
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
@@ -39,8 +46,8 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: gradle-
 
-      - name: Build APK
-        run: ./gradlew assembleDebug
+      - name: Build APK (Debug with full logging)
+        run: ./gradlew assembleDebug --stacktrace --info --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
