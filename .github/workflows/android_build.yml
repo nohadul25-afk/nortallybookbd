@@ -24,11 +24,8 @@ jobs:
           java-version: 11
 
       # 3️⃣ Set up Android SDK
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 34
-          build-tools: 34.0.0
+- name: Set up Android SDK
+  uses: android-actions/setup-android@v2
 
       # 4️⃣ Upgrade Gradle wrapper to 7.6 (override old one if needed)
       - name: Upgrade Gradle wrapper
