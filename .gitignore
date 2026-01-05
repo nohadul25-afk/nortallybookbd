@@ -1,0 +1,21 @@
+# Android build folders
+/build/
+/app/build/
+
+# Gradle
+/.gradle/
+/gradlew
+/gradlew.bat
+/gradle-wrapper.jar
+/gradle-wrapper.properties
+
+# Local configuration
+/local.properties
+
+# IDE specific files
+/.idea/
+/*.iml
+
+# Optional large files
+*.log
+*.tmp
